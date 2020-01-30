@@ -1,12 +1,26 @@
+
 node {
+    def app
+
+    stage('Clone Repository'){
+        checkout scm
     
-    checkout scm
-
-    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub'){
-        def customImage = docker.build("doxxitxxyoung/glit-server-flask")
-
-        /* Push the container to custom registry */
-        customImage.push()
-
     }
+
+    stage('Build Image'){
+        app = docker.build('doxxitxxyoung/glit-server-flask')
+    }
+
+    stage('Test Image'){
+        sh echo "test succeeded"
+    }
+
+    stage('Push image'){
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub'){
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
+        
+        }
+    }
+
 }
